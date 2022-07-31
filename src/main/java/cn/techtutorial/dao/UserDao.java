@@ -5,7 +5,6 @@ import cn.techtutorial.model.*;
 
 public class UserDao {
 	private Connection con;
-
 	private String query;
     private PreparedStatement pst;
     private ResultSet rs;

@@ -49,6 +49,7 @@ public class User {
 	}
 
 	@Override
+	//used in order to debugging
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + "]";
 	}
