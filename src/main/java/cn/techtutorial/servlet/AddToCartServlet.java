@@ -2,6 +2,7 @@ package cn.techtutorial.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -13,45 +14,60 @@ import javax.servlet.http.HttpSession;
 
 import cn.techtutorial.model.*;
 
-
 @WebServlet(name = "AddToCartServlet", urlPatterns = "/add-to-cart")
 public class AddToCartServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
+		 DecimalFormat df = new DecimalFormat("#.##");
+		try (PrintWriter out = response.getWriter()) {
 
-        try (PrintWriter out = response.getWriter()) {
-//        	out.print("add to cart servlet");
+			//an empty object type arraylist is created for cartlist
+			ArrayList<Cart> cartList = new ArrayList<>();
+			
+			//hte id is taken and stored in the id variable hence converted to integer
+			int id = Integer.parseInt(request.getParameter("id"));
+			
+			//a cm object is made by the Cart class and id,quantity is set relevantly
+			Cart cm = new Cart();
+			cm.setId(id);
+			cm.setQuantity(1);
+			
+			//a session object created
+			HttpSession session = request.getSession();
+			//the session.getAttribute() returns a arraylist so that is stored in the cart_list object type array list and is type casted as object type arraylist
+			ArrayList<Cart> cart_list = (ArrayList<Cart>) session.getAttribute("cart-list");
+			
+			//the below conditions means if there is know seesion atribute present in the cart_list
+			if (cart_list == null) {
+				//adds the product to the initially made cartList empty arraylist 
+				cartList.add(cm);
+				//cartList added to session as cart-list
+				session.setAttribute("cart-list", cartList);
+				//redirects to the index page
+				response.sendRedirect("index.jsp");
+			}
+			//if session attribute present in the cart_list below happens
+			else {
+				cartList = cart_list;
 
-            ArrayList<Cart> cartList = new ArrayList<>();
-            int id = Integer.parseInt(request.getParameter("id"));
-            Cart cm = new Cart();
-            cm.setId(id);
-            cm.setQuantity(1);
-            HttpSession session = request.getSession();
-            ArrayList<Cart> cart_list = (ArrayList<Cart>) session.getAttribute("cart-list");
-            if (cart_list == null) {
-                cartList.add(cm);
-                session.setAttribute("cart-list", cartList);
-                response.sendRedirect("index.jsp");
-            } else {
-                cartList = cart_list;
+				boolean exist = false;
+				for (Cart c : cart_list) {
+					if (c.getId() == id) {
+						exist = true;
+						out.println(
+								"<h3 style='color:crimson; text-align: center'>Item Already in Cart. <a href='cart.jsp'>GO to Cart Page</a></h3>");
+					}
+				}
 
-                boolean exist = false;
-                for (Cart c : cart_list) {
-                    if (c.getId() == id) {
-                        exist = true;
-                        out.println("<h3 style='color:crimson; text-align: center'>Item Already in Cart. <a href='cart.jsp'>GO to Cart Page</a></h3>");
-                    }
-                }
-
-                if (!exist) {
-                    cartList.add(cm);
-                    response.sendRedirect("index.jsp");
-                }
-            }
-        }
+				if (!exist) {
+					cartList.add(cm);
+					response.sendRedirect("index.jsp");
+				}
+			}
+		}
 	}
 
 }

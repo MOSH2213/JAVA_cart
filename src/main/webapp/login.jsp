@@ -1,5 +1,6 @@
 <%@page import="cn.techtutorial.connection.DbCon" %>
 <%@page import="cn.techtutorial.model.*" %>
+<%@page import="java.util.*"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 	
@@ -11,6 +12,13 @@
 			request.setAttribute("auth",auth);
 			response.sendRedirect("index.jsp");
 		}
+
+		//cart list type beins
+		ArrayList<Cart> cart_list = (ArrayList<Cart>) session.getAttribute("cart-list");
+
+		if (cart_list != null) {
+			request.setAttribute("cart_list", cart_list);
+		}	
 	%>
 <!DOCTYPE html>
 <html>
@@ -20,7 +28,7 @@
 <%@ include file="includes/head.jsp"%>
 </head>
 <body>
-	<%@include file="includes/footer.jsp"%>
+	<%@include file="includes/navbar.jsp"%>
 	<div class="container">
 		<div class="card w-50 mx-auto my-5">
 			<div class="card-header text-center">User Login</div>
