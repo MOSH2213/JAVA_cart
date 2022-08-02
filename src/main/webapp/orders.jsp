@@ -7,7 +7,7 @@
 		if(auth!=null){
 			//no need to have the setattribute in login pagge because navbar which contains auth variable is not presen here
 			request.setAttribute("auth",auth);
-			response.sendRedirect("index.jsp");
+			//response.sendRedirect("index.jsp");
 		}
 
 		//cart list type beins
