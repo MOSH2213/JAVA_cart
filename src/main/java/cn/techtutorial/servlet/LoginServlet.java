@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.techtutorial.connection.DbCon;
+import cn.techtutorial.dao.AdminDao;
 import cn.techtutorial.dao.UserDao;
+import cn.techtutorial.model.Admin;
 import cn.techtutorial.model.User;
 
 
@@ -32,12 +34,21 @@ public class LoginServlet extends HttpServlet {
 //			out.print(email+password);
 			
 			try {
+				//for user based login credentials
 				UserDao udao = new UserDao(DbCon.getConnection());
 				User user = udao.userLogin(email,password);
 				if(user !=null) {
 					out.print("user gmmc thma");
 					request.getSession().setAttribute("auth", user);
 					response.sendRedirect("index.jsp");
+				}
+				//for admin based lodin credentials
+				AdminDao adao = new AdminDao(DbCon.getConnection());
+				Admin admin = adao.adminLogin(email,password);
+				if(admin !=null) {
+					out.print("user gmmc thma");
+					request.getSession().setAttribute("authadmin", admin);
+					response.sendRedirect("admin.jsp");
 				}
 				else {
 					out.print("plyn ynda");
