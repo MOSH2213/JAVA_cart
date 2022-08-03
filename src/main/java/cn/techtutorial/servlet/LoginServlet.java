@@ -3,6 +3,8 @@ package cn.techtutorial.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.techtutorial.connection.DbCon;
 import cn.techtutorial.dao.AdminDao;
+import cn.techtutorial.dao.LogTimeDao;
 import cn.techtutorial.dao.UserDao;
 import cn.techtutorial.model.Admin;
+import cn.techtutorial.model.LogTime;
 import cn.techtutorial.model.User;
 
 
@@ -29,34 +33,62 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF8");
 		try(PrintWriter out = response.getWriter()){
-			String email=request.getParameter("login-email");
-			String password=request.getParameter("login-password");
-//			out.print(email+password);
+				//parameter catching from the form
+				String email=request.getParameter("login-email");
+				String password=request.getParameter("login-password");
 			
-			try {
-				//for user based login credentials
-				UserDao udao = new UserDao(DbCon.getConnection());
-				User user = udao.userLogin(email,password);
-				if(user !=null) {
-					out.print("user gmmc thma");
-					request.getSession().setAttribute("auth", user);
-					response.sendRedirect("index.jsp");
+				// object made to format the date
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				// object made to format the time
+				SimpleDateFormat formatter_time = new SimpleDateFormat("hh:mm:ss aa");
+				// object made to format the time
+				SimpleDateFormat formatter_day = new SimpleDateFormat("EEEE");
+				// object made to format the time
+				SimpleDateFormat formatter_month = new SimpleDateFormat("MMMM");
+
+				// captures the date and time
+				Date date = new Date();
+				Date time = new Date();
+				Date day = new Date();
+				Date month = new Date();
+			
+				try {
+					//for user based login credentials
+					UserDao udao = new UserDao(DbCon.getConnection());
+					User user = udao.userLogin(email,password);
+					if(user !=null) {
+						out.print("user gmmc thma");
+						request.getSession().setAttribute("auth", user);
+						
+						//related to the logintime tables
+						LogTime logtime = new LogTime();
+						logtime.setUemail(email);
+						logtime.setDate(formatter.format(date));
+						logtime.setTime(formatter_time.format(time));
+						logtime.setDay(formatter_day.format(day));
+						logtime.setMonth(formatter_month.format(month));
+						
+						LogTimeDao lgtime= new LogTimeDao(DbCon.getConnection()); 
+						boolean result = lgtime.insertlogs(logtime);
+						
+						//redirects to index.jsp page
+						response.sendRedirect("index.jsp");
+					}
+					//for admin based lodin credentials
+					AdminDao adao = new AdminDao(DbCon.getConnection());
+					Admin admin = adao.adminLogin(email,password);
+					if(admin !=null) {
+						out.print("user gmmc thma");
+						request.getSession().setAttribute("authadmin", admin);
+						response.sendRedirect("admin.jsp");
+					}
+					else {
+						out.print("plyn ynda");
+					}
 				}
-				//for admin based lodin credentials
-				AdminDao adao = new AdminDao(DbCon.getConnection());
-				Admin admin = adao.adminLogin(email,password);
-				if(admin !=null) {
-					out.print("user gmmc thma");
-					request.getSession().setAttribute("authadmin", admin);
-					response.sendRedirect("admin.jsp");
+				catch (ClassNotFoundException e) {
+					e.printStackTrace();
 				}
-				else {
-					out.print("plyn ynda");
-				}
-			}
-			catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
 			
 		}  
 		catch (SQLException e) {
